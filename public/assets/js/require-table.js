@@ -24,7 +24,6 @@ define(['jquery', 'bootstrap', 'backend', 'toastr', 'moment', 'bootstrap-table',
             locale: 'zh-CN',
             showToggle: true,
             showColumns: true,
-            pk: 'id',
             sortName: 'id',
             sortOrder: 'desc',
             paginationFirstText: __("First"),
@@ -111,7 +110,6 @@ define(['jquery', 'bootstrap', 'backend', 'toastr', 'moment', 'bootstrap-table',
                 //当内容渲染完成后
                 table.on('post-body.bs.table', function (e, settings, json, xhr) {
                     $(Table.config.refreshbtn, toolbar).find(".fa").removeClass("fa-spin");
-                    $(Table.config.disabledbtn, toolbar).toggleClass('disabled', true);
 
                     // 挺拽选择,需要重新绑定事件
                     require(['drag', 'drop'], function () {
@@ -189,25 +187,24 @@ define(['jquery', 'bootstrap', 'backend', 'toastr', 'moment', 'bootstrap-table',
                         dragEnd: function () {
                             var data = table.bootstrapTable('getData');
                             var current = data[parseInt($(this).data("index"))];
-                            var options = table.bootstrapTable('getOptions');
                             //改变的值和改变的ID集合
                             var ids = $.map($("tbody tr:visible", table), function (tr) {
-                                return data[parseInt($(tr).data("index"))][options.pk];
+                                return data[parseInt($(tr).data("index"))].id;
                             });
-                            var changeid = current[options.pk];
+                            var changeid = current.id;
                             var pid = typeof current.pid != 'undefined' ? current.pid : '';
-                            var params = {
+                            var options = {
                                 url: table.bootstrapTable('getOptions').extend.dragsort_url,
                                 data: {
                                     ids: ids.join(','),
                                     changeid: changeid,
                                     pid: pid,
                                     field: Table.config.dragsortfield,
-                                    orderway: options.sortOrder,
-                                    table: options.extend.table
+                                    orderway: table.bootstrapTable('getOptions').sortOrder,
+                                    table: table.bootstrapTable('getOptions').extend.table
                                 }
                             };
-                            Backend.api.ajax(params, function (data) {
+                            Backend.api.ajax(options, function (data) {
                                 Toastr.success(__('Operation completed'));
                                 table.bootstrapTable('refresh');
                             });
@@ -236,7 +233,7 @@ define(['jquery', 'bootstrap', 'backend', 'toastr', 'moment', 'bootstrap-table',
                 operate: {
                     'click .btn-editone': function (e, value, row, index) {
                         var options = $(this).closest('table').bootstrapTable('getOptions');
-                        Backend.api.open(options.extend.edit_url + "/ids/" + row[options.pk], __('Edit'));
+                        Backend.api.open(options.extend.edit_url + "/ids/" + row.id, __('Edit'));
                     },
                     'click .btn-delone': function (e, value, row, index) {
                         var that = this;
@@ -253,8 +250,7 @@ define(['jquery', 'bootstrap', 'backend', 'toastr', 'moment', 'bootstrap-table',
                                 {icon: 3, title: __('Warning'), offset: [top, left], shadeClose: true},
                                 function () {
                                     var table = $(that).closest('table');
-                                    var options = table.bootstrapTable('getOptions');
-                                    Table.api.multi("del", row[options.pk], table, that);
+                                    Table.api.multi("del", row.id, table, that);
                                     Backend.api.layer.close(index);
                                 }
                         );
@@ -345,9 +341,8 @@ define(['jquery', 'bootstrap', 'backend', 'toastr', 'moment', 'bootstrap-table',
             },
             // 获取选中的条目ID集合
             selectedids: function (table) {
-                var options = table.bootstrapTable('getOptions');
                 return $.map(table.bootstrapTable('getSelections'), function (row) {
-                    return row[options.pk];
+                    return row.id
                 });
             },
             // 切换复选框状态

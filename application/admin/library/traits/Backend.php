@@ -2,6 +2,7 @@
 
 namespace app\admin\library\traits;
 
+
 trait Backend
 {
 
@@ -60,7 +61,7 @@ trait Backend
      */
     public function edit($ids = NULL)
     {
-        $row = $this->model->get($ids);
+        $row = $this->model->get(['id' => $ids]);
         if (!$row)
             $this->error(__('No Results were found'));
         if ($this->request->isPost())
@@ -92,7 +93,7 @@ trait Backend
         $this->code = -1;
         if ($ids)
         {
-            $count = $this->model->destroy($ids);
+            $count = $this->model->where('id', 'in', $ids)->delete();
             if ($count)
             {
                 $this->code = 1;
@@ -117,7 +118,7 @@ trait Backend
                 $values = array_intersect_key($values, array_flip(array('status')));
                 if ($values)
                 {
-                    $count = $this->model->where($this->model->getPk(), 'in', $ids)->update($values);
+                    $count = $this->model->where('id', 'in', $ids)->update($values);
                     if ($count)
                     {
                         $this->code = 1;

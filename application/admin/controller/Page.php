@@ -20,5 +20,4 @@ class Page extends Backend
         parent::_initialize();
         $this->model = model('Page');
     }
-
 }

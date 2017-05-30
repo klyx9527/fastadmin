@@ -31,7 +31,7 @@ class Crud extends Command
     {
         $adminPath = dirname(__DIR__) . DS;
         //表名
-        $table = $input->getOption('table') ?: '';
+        $table = $input->getOption('table') ? : '';
         //自定义控制器
         $controller = $input->getOption('controller');
         //自定义模型
@@ -96,7 +96,6 @@ class Crud extends Command
 
         //从数据库中获取表字段信息
         $columnList = Db::query("SELECT * FROM `information_schema`.`columns` WHERE TABLE_SCHEMA = ? AND table_name = ? ORDER BY ORDINAL_POSITION", [$dbname, $tableName]);
-
         $fields = [];
         foreach ($columnList as $k => $v)
         {
@@ -110,20 +109,6 @@ class Crud extends Command
         $field = 'id';
         $order = 'id';
         $priDefined = FALSE;
-        $prikey = '';
-        foreach ($columnList as $k => $v)
-        {
-            if ($v['COLUMN_KEY'] == 'PRI')
-            {
-                $prikey = $v['COLUMN_NAME'];
-                break;
-            }
-        }
-        if (!$prikey)
-        {
-            throw new Exception('Primary key not found!');
-        }
-        $order = $prikey;
 
         try
         {
@@ -176,7 +161,7 @@ class Crud extends Command
                         if ($v['DATA_TYPE'] == 'set')
                         {
                             $attrArr['multiple'] = '';
-                            $fieldName .= "[]";
+                            $fieldName.="[]";
                         }
                         $attrStr = $this->getArrayString($attrArr);
                         $itemArr = $this->getLangArray($itemArr, FALSE);
@@ -224,7 +209,7 @@ class Crud extends Command
                     }
                     else if ($inputType == 'checkbox')
                     {
-                        $fieldName .= "[]";
+                        $fieldName.="[]";
                         $itemArr = $this->getLangArray($itemArr, FALSE);
                         $itemString = $this->getArrayString($itemArr);
                         $formAddElement = "{:build_checkboxs('{$fieldName}', [{$itemString}], '{$defaultValue}')}";
@@ -238,7 +223,7 @@ class Crud extends Command
                         $formAddElement = "{:build_radios('{$fieldName}', [{$itemString}], '{$defaultValue}')}";
                         $formEditElement = "{:build_radios('{$fieldName}', [{$itemString}], \$row.{$field})}";
                     }
-                    else if ($inputType == 'textarea')
+                    else if ($inputType == 'textarea' || ($inputType == 'text' && $v['CHARACTER_MAXIMUM_LENGTH'] >= 255))
                     {
                         $cssClassArr[] = substr($field, -7) == 'content' ? 'summernote' : '';
                         $attrArr['class'] = implode(' ', $cssClassArr);
@@ -267,7 +252,7 @@ class Crud extends Command
                         $step = array_intersect($cssClassArr, ['typeahead', 'tagsinput']) ? 0 : $step;
                         $attrArr['class'] = implode(' ', $cssClassArr);
 
-                        $isUpload = in_array(substr($field, -4), ['file']) || in_array(substr($field, -5), ['files', 'image']) || in_array(substr($field, -6), ['images', 'avatar']) || in_array(substr($field, -7), ['avatars']) ? TRUE : FALSE;
+                        $isUpload = substr($field, -4) == 'file' || substr($field, -5) == 'image' || substr($field, -6) == 'avatar' ? TRUE : FALSE;
                         //如果是步长则加上步长
                         if ($step)
                         {
@@ -342,7 +327,6 @@ class Crud extends Command
                 'modelName'               => $modelName,
                 'tableComment'            => $tableComment,
                 'iconName'                => $iconName,
-                'pk'                      => $prikey,
                 'order'                   => $order,
                 'table'                   => $table,
                 'tableName'               => $tableName,
@@ -547,16 +531,11 @@ EOD;
      */
     protected function getImageUpload($field, $content)
     {
-        $filter = substr($field, -4) == 'avatar' || substr($field, -5) == 'image' || substr($field, -6) == 'images' ? ' data-mimetype="image/*"' : "";
-        $multiple = substr($field, -1) == 's' ? ' data-multiple="true"' : ' data-multiple="false"';
-        $preview = $filter ? ' data-preview-id="p-' . $field . '"' : '';
-        $previewcontainer = $preview ? '<ul class="row list-inline plupload-preview" id="p-' . $field . '"></ul>' : '';
+        $filter = substr($field, -4) == 'avatar' || substr($field, -5) == 'image' ? 'data-mimetype="image/*"' : "";
         return <<<EOD
 <div class="form-inline">
                 {$content}
-                <span><button type="button" id="plupload-{$field}" class="btn btn-danger plupload" data-input-id="c-{$field}"{$filter}{$multiple}{$preview}><i class="fa fa-upload"></i> {:__('Upload')}</button></span>
-                <span><button type="button" id="fachoose-{$field}" class="btn btn-primary fachoose" data-input-id="c-{$field}"{$filter}{$multiple}><i class="fa fa-list"></i> {:__('Choose')}</button></span>
-                {$previewcontainer}
+                <span><button id="plupload-{$field}" class="btn btn-danger plupload" data-input-id="c-{$field}"{$filter}><i class="fa fa-upload"></i> {:__('Upload')}</button></span>
             </div>
 EOD;
     }

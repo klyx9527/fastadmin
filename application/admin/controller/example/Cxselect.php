@@ -12,12 +12,9 @@ use app\common\controller\Backend;
  */
 class Cxselect extends Backend
 {
-
     protected $model = null;
-
     public function _initialize()
     {
         parent::_initialize();
     }
-
 }
