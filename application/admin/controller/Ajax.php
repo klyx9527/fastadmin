@@ -348,7 +348,25 @@ class Ajax extends Backend
         $this->data = $categorylist;
         return;
     }
+     public function staff()
+    {
+        $type = $this->request->get('type');
+        $pid = $this->request->get('pid');
+        $where = ['status' => 'normal'];
+        if ($type)
+        {
+            $where['type'] = $type;
+        }
+        if ($pid)
+        {
+            $where['pid'] = $pid;
+        }
 
+        $stafflist = Db::name('staff')->where($where)->field('id as value,name')->order('id desc')->select();
+        $this->code = 1;
+        $this->data = $stafflist;
+        return;
+    }
     /**
      * 读取省市区数据
      */

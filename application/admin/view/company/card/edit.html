@@ -8,15 +8,15 @@
     </div>
     <div class="form-group">
         <label for="c-webchat" class="control-label col-xs-12 col-sm-2">{:__('channel.name')}:</label>
-        
-            <div class="form-inline" data-toggle="cxselect" data-selects="first,second">
-            <select class="first form-control" name="first" data-url="ajax/staff?type=page&amp;pid=1">
-            <option value="6" selected="">网站建站</option>
+        <div class="form-inline" data-toggle="cxselect" data-selects="first,second">
+            <select class="first form-control" name="staff.name" data-url="ajax/staff?type=page&pid=1">
+                <option value="2" selected>彭言</option>
             </select>
-            <select class="second form-control" name="second" data-url="ajax/category" data-query-name="pid">
-            <option value="9" selected="">移动端</option>
+            <select class="second form-control" name="staff.name" data-url="ajax/staff" data-query-name="pid">
+                <option value="4" selected>张洁</option>
+                
             </select>
-            </div>
+        </div>
     </div>
     <div class="form-group">
         <label for="c-tel" class="control-label col-xs-12 col-sm-2">{:__('Tel')}:</label>

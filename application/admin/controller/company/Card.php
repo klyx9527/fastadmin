@@ -1,12 +1,8 @@
 <?php
-
-namespace app\admin\controller\company;
-
-use app\common\controller\Backend;
-
-use think\Controller;
-use think\Request;
-
+    namespace app\admin\controller\company;
+    use app\common\controller\Backend;
+    use think\Controller;
+    use think\Request;
 /**
  * 
  *
@@ -45,9 +41,5 @@ class Card extends Backend
             return json($result);
         }
         return $this->view->fetch();
-    }
-    
-  
-    
-    
+    }    
 }
